@@ -33,80 +33,46 @@ This project is currently licenced under the LGPL v3 licence.
 Installation
 ------------
 
-Install from PyPI
-~~~~~~~~~~~~~~~~~
+    git clone git@github.com:honeydew-ai/olapy.git
 
-You can install it directly from the `Python Package Index <https://pypi.python.org/pypi/olapy>`_::
+install poetry:
 
-    pip install olapy
+    curl -sSL https://install.python-poetry.org | python3 -
 
+install dependencies:
 
-Install from Github
-~~~~~~~~~~~~~~~~~~~
+    poetry install
 
-The project sources are stored in `Github repository <https://github.com/abilian/olapy>`_.
+set environment variables:
 
-Download from Github::
+    export OLAPY_PATH=$(pwd)/olapy-data
 
-    git clone git://github.com/abilian/olapy.git
-
-
-To set up the application, run, ideally in a virtualenv::
-
-    cd olapy
-    python setup.py install
-
-or just::
-
-    pip install -e .
-
-**[OPTIONAL]**
-
-you can use `Spark <https://spark.apache.org/docs/0.9.0/python-programming-guide.html>`_  instead of `Pandas <https://pandas.pydata.org/>`_, to do so, you need just to install it::
-
-    pip install pyspark
-
-and if you want to go back to pandas just uninstall spark with::
-
-    pip uninstall pyspark
+    olapy init
 
 Usage
 -----
 
-Before running OlaPy, you need to initialize it with::
-
-    olapy init
-
-and then you can run the server with::
+Run the server:
 
     olapy runserver
 
+here is a configuration that works as a POC:
 
-and then from excel, open new spreadsheet and go to : Data -> From Other Sources -> From Analysis Services and use http://127.0.0.1:8000/ as server name and click next, then you can chose one of default olapy demo cubes (sales, foodmart...) and finish.
+    olapy runserver --write_on_file false --source_type csv --cube_config_file=./olapy-data/cubes/cubes-config.yml --olapy_data=./olapy-data
 
-that's it ! now you can play with data
+Open Excel and go to Data -> From Other Sources -> From Analysis Services and use
 
+    http://localhost:8000/xmla
 
-Developing
-----------
-
-This project must adhere to the `Abilian Developer Guide <http://abilian-developer-guide.readthedocs.io/>`_.
-
-Pull requests are welcome.
-
-Tests
-~~~~~
-
-To run tests, run::
-
-    pytest tests
-
-or simply (on Unix-like systems)::
-
-    make test
+as server name and click next, then you can chose one of default olapy demo cubes (sales, foodmart...) and finish.
 
 
-Credits
--------
+for all the options, you can use::
 
-This project is developed by `Abilian SAS <https://www.abilian.com>`_ and partially funded by the French Government through the `Wendelin <http://www.wendelin.io/>`_ project and the `Investissement d'avenir <http://www.gouvernement.fr/investissements-d-avenir-cgi>`_ programme.
+    olapy runserver --help
+
+there is also a configuration file for the server in the root of the project:
+
+olapy-data/olapy-config.yml
+
+It can be used to configure the connection to the database, the cubes to load, etc.

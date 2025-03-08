@@ -122,7 +122,6 @@ class MdxEngine:
             cubes_folder_path = os.path.join(
                 self.olapy_data_location, self.cubes_folder
             )
-
             self.csv_files_cubes = self._get_csv_cubes_names(cubes_folder_path)
 
         return self.db_cubes + self.csv_files_cubes
@@ -155,7 +154,7 @@ class MdxEngine:
         if self.tables_loaded:
             self.star_schema_dataframe = self.get_star_schema_dataframe(sep=sep)
 
-    def load_tables(self, sep: str) -> dict[str, pd.DataFrame]:
+    def load_tables(self, sep: str):
         """
         Load all tables as dict of { Table_name : DataFrame } for the current
         cube instance.

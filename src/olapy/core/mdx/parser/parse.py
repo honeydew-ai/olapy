@@ -201,7 +201,7 @@ class Parser:
         split_group = group.replace("\n", "").replace("\t", "").split("],")
         return list(map(lambda tupl: self.add_tuple_brackets(tupl), split_group))
 
-    def get_nested_select(self) -> list[str]:
+    def get_nested_select(self):
         """Get tuples groups in query like ::
 
             Select {

@@ -9,7 +9,7 @@ class CubeLoader:
         self.cube_path = cube_path
         self.sep = sep
 
-    def load_tables(self) -> dict[str, pd.DataFrame]:
+    def load_tables(self):
         """Load tables from csv files.
 
         :return: tables dict with table name as key and dataframe as value

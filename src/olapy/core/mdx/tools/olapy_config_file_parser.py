@@ -38,5 +38,5 @@ class DbConfigParser:
         else:
             file_path = self.config_file_path
         with open(file_path) as config_file:
-            config = yaml.load(config_file)
+            config = yaml.load(config_file, Loader=yaml.FullLoader)
             return config["connection_string"]

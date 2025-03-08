@@ -132,6 +132,7 @@ class XmlaProviderService(ServiceBase, XmlaProviderLib):
         # handler (which normally load the cube first)
         if (
             request.Properties
+            and request.Properties.PropertyList
             and request.Properties.PropertyList.Catalog
             and not execute_request_hanlder.executor.cube
         ):
@@ -333,9 +334,9 @@ def runserver(
     if write_on_file:
         if not os.path.isdir(os.path.join(home_directory, "olapy-data", "logs")):
             os.makedirs(os.path.join(home_directory, "olapy-data", "logs"))
-        logging.basicConfig(level=logging.DEBUG, filename=log_file_path)
+        logging.basicConfig(level=logging.INFO, filename=log_file_path)
     else:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.INFO)
     logging.getLogger("spyne.protocol.xml").setLevel(logging.DEBUG)
     logging.info("listening to http://127.0.0.1:8000/xmla")
     logging.info("wsdl is at: http://localhost:8000/xmla?wsdl")

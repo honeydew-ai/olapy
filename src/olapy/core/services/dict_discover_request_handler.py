@@ -136,9 +136,10 @@ class DictDiscoverReqHandler:
                     )
                 )
                 value = self.selected_cube
-            else:
+            elif self.cubes:
                 value = self.cubes[0]
-
+            else:
+                value = ""
             return self._get_properties(
                 discover_preperties_xsd,
                 "Catalog",
