@@ -37,9 +37,9 @@ class Dialect:
             not in ["mysql", "information_schema", "performance_schema", "sys"]
         ]
 
-    def __del__(self):
-        if hasattr(self, "connection"):
-            self.engine.dispose()
+    # def __del__(self):
+    #     if hasattr(self, "connection"):
+    #         self.engine.dispose()
 
 
 class PostgresDialect(Dialect):

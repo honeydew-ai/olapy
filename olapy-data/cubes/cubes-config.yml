@@ -1,13 +1,13 @@
 # cube name <==> db name
 name : foodmart_with_config
 #csv | postgres | mysql ...
-source : csv
+source : postgres
 
 # star building customized star schema
 xmla_authentication : False
 
 facts :
-  table_name : food_facts
+  table_name : public.facts
   keys:
     product_id : Product.id
     warehouse_id : Warehouse.id
@@ -22,8 +22,8 @@ facts :
 # star building customized dimensions display in excel from the star schema
 dimensions:
   #  IMPORTANT , put here facts table also (little bug)
-  - name : food_facts
-    displayName : food_facts
+  - name : public.facts
+    displayName : public.facts
 
 
 

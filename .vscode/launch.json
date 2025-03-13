@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Olapy Server",
+            "type": "debugpy",
+            // "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "request": "launch",
+            "module": "src.olapy",
+            "console": "integratedTerminal",
+            "args": [
+                // "runserver",
+                "--write_on_file", "false",
+                "--source_type", "db",
+                "--olapy_data=/home/michael/projs/honeydew/xmla/olapy_honeydew1/",
+                "--db_config_file=/home/michael/projs/honeydew/xmla/olapy_honeydew1/olapy-data/olapy-config.yml"
+                "-cube_config_file /home/michael/projs/honeydew/xmla/olapy_honeydew1/olapy-data/olapy-cube-config.yml"
+            ]
+        }
+    ]
+}

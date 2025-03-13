@@ -41,7 +41,20 @@ except ImportError:
     pass
 
 # noinspection PyPep8Naming
+class SqlAlchemyEngineWrapper:
+    def __init__(self, engine):
+        self._engine = engine
+        self.name = "Wrapper"
 
+    def __getattr__(self, name):
+        attr = getattr(self._engine, name)
+        if callable(attr):
+            def wrapper(*args, **kwargs):
+                print(f"Calling {name} with args: {args}, kwargs: {kwargs}")
+                return attr(*args, **kwargs)
+            return wrapper
+        else:
+            return attr
 
 class XmlaDiscoverReqHandler(DictDiscoverReqHandler):
     """XmlaDiscoverReqHandler handles information, such as the list of
@@ -80,7 +93,7 @@ class XmlaDiscoverReqHandler(DictDiscoverReqHandler):
                 new_sql_alchemy_uri = self._change_db_uri(
                     self.sql_alchemy_uri, new_cube
                 )
-                self.executor.sqla_engine = create_engine(new_sql_alchemy_uri)
+                self.executor.sqla_engine = create_engine(new_sql_alchemy_uri, connect_args={"password": "admin"})
             if self.executor.cube != new_cube:
                 self.executor.load_cube(new_cube, fact_table_name=facts)
 

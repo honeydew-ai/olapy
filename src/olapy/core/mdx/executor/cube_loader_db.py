@@ -1,4 +1,5 @@
 from typing import Dict, Text
+from collections.abc import Iterable
 
 import pandas as pd
 import pandas.io.sql as psql
@@ -54,20 +55,21 @@ class CubeLoaderDB(CubeLoader):
         :param facts: Facts table name
         :return: star schema DataFrame
         """
-
-        df = psql.read_sql_query(f"SELECT * FROM {facts}", self.sqla_engine)
+        connection = self.sqla_engine.raw_connection()
+        cursor = connection.cursor()
+        df = psql.read_sql_query(f"SELECT * FROM {facts}", connection)
         inspector = inspect(self.sqla_engine)
 
         for db_table_name in inspector.get_table_names():
-            # try:
-            #     db_table_name = str(db_table_name)
-            # except Exception:
-            #     if isinstance(db_table_name, Iterable):
-            #         db_table_name = db_table_name[0]
+            try:
+                db_table_name = str(db_table_name)
+            except Exception:
+                if isinstance(db_table_name, Iterable):
+                    db_table_name = db_table_name[0]
             try:
                 df = df.merge(
                     psql.read_sql_query(
-                        f"SELECT * FROM {db_table_name}", self.sqla_engine
+                        f"SELECT * FROM {db_table_name}", connection
                     )
                 )
             except MergeError:

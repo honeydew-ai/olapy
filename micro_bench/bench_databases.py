@@ -6,16 +6,16 @@ from urllib.parse import urlparse
 
 import sqlalchemy
 from cpuinfo import cpuinfo, os
-from olap.xmla import xmla
-from olap.xmla.interfaces import XMLAException
+from olapy.core.services import xmla
+# from olapy.core.services.xmla.interfaces import XMLAException
 from prettytable import PrettyTable
 
 from olapy.core.mdx.executor import MdxEngine
 from olapy.core.services.xmla import get_wsgi_application
-from tests.queries import query1, query6, query7, query9
-from tests.test_xmla import WSGIServer
+from queries_4_db import query1, query6, query7, query9
+from olapy_pandas_VS_olapy_pyspark.benchmark_tools import WSGIServer
 
-from .micro_bench import MicBench
+from micro_bench import MicBench
 
 HOST = "127.0.0.1"
 PORT = 8230
@@ -82,7 +82,7 @@ def main():
     )
 
     file.write("Benchmarks are made with cpu :\n")
-    file.write(cpuinfo.get_cpu_info()["brand"] + "\n\n")
+    file.write(cpuinfo.get_cpu_info()["brand_raw"] + "\n\n")
 
     for idx, query in enumerate([query1, query6, query7, query9]):
         file.write(
@@ -111,7 +111,7 @@ def main():
 
             # to refresh cubes from database
 
-            provider = xmla.XMLAProvider()
+            provider = xmla.XmlaProviderService()
             conn = provider.connect(location=server.url)
 
             mbench = MicBench()
@@ -126,7 +126,7 @@ def main():
                 )
 
             file.write(str(t) + "\n\n")
-        except XMLAException:
+        except Exception:
             type, value, traceback = sys.exc_info()
             print("Error opening %s" % (value))
             print(f"Can't connect to {dbms} database")

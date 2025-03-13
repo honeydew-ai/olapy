@@ -6,7 +6,7 @@ from wsgiref.simple_server import make_server
 import matplotlib.pyplot as plt
 import numpy as np
 from cpuinfo import cpuinfo
-from olap.xmla import xmla
+from olapy.core.services import xmla
 from prettytable import PrettyTable
 from spyne.server.wsgi import WsgiApplication
 
@@ -60,7 +60,7 @@ def olapy_mdx_benchmark(queries, mdx_engine):
 
 
 def olapy_xmla_benchmark(queries):
-    provider = xmla.XMLAProvider()
+    provider = xmla.XmlaProviderService()
     connection = provider.connect(location=f"http://{HOST}:{PORT}")
 
     execution_time_results = []

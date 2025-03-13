@@ -237,7 +237,7 @@ class MdxEngine:
                             "float"
                         )
                     except ValueError:
-                        star_schema_df = star_schema_df.drop(measure, 1)
+                        star_schema_df = star_schema_df.drop(measure, axis=1)
         return star_schema_df
 
     def get_star_schema_dataframe(self, sep, with_id_columns=False):

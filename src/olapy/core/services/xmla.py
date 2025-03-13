@@ -78,9 +78,9 @@ class XmlaProviderService(ServiceBase, XmlaProviderLib):
         :return: XML Discover response as string
         """
         # ctx is the 'context' parameter used by Spyne
-        discover_request_hanlder = ctx.app.config["discover_request_hanlder"]
-        ctx.out_header = Session(SessionId=str(discover_request_hanlder.session_id))
-        config_parser = discover_request_hanlder.executor.cube_config
+        discover_request_handler = ctx.app.config["discover_request_handler"]
+        ctx.out_header = Session(SessionId=str(discover_request_handler.session_id))
+        config_parser = discover_request_handler.executor.cube_config
         if (
             config_parser
             and config_parser["xmla_authentication"]
@@ -91,7 +91,7 @@ class XmlaProviderService(ServiceBase, XmlaProviderLib):
             )
 
         method_name = request.RequestType.lower() + "_response"
-        method = getattr(discover_request_hanlder, method_name)
+        method = getattr(discover_request_handler, method_name)
 
         if request.RequestType == "DISCOVER_DATASOURCES":
             return method()
@@ -113,11 +113,11 @@ class XmlaProviderService(ServiceBase, XmlaProviderLib):
 
         # same session_id in discover and execute
         ctx.out_header = Session(
-            SessionId=str(ctx.app.config["discover_request_hanlder"].session_id)
+            SessionId=str(ctx.app.config["discover_request_handler"].session_id)
         )
         # same executor instance as the discovery (not reloading the cube another time)
         mdx_query = request.Command.Statement.encode().decode("utf8")
-        execute_request_hanlder = ctx.app.config["execute_request_hanlder"]
+        execute_request_handler = ctx.app.config["execute_request_handler"]
 
         # Hierarchize
         if all(
@@ -134,20 +134,33 @@ class XmlaProviderService(ServiceBase, XmlaProviderLib):
             request.Properties
             and request.Properties.PropertyList
             and request.Properties.PropertyList.Catalog
-            and not execute_request_hanlder.executor.cube
+            and not execute_request_handler.executor.cube
         ):
-            execute_request_hanlder.executor.load_cube(
+            execute_request_handler.executor.load_cube(
                 request.Properties.PropertyList.Catalog
             )
 
-        execute_request_hanlder.execute_mdx_query(mdx_query, convert2formulas)
-        return execute_request_hanlder.generate_response()
+        execute_request_handler.execute_mdx_query(mdx_query, convert2formulas)
+        return execute_request_handler.generate_response()
 
 
 home_directory = expanduser("~")
 logs_file = os.path.join(home_directory, "olapy-data", "logs", "xmla.log")
 
+class SqlAlchemyEngineWrapper:
+    def __init__(self, engine):
+        self._engine = engine
+        self.name = "Wrapper"
 
+    def __getattr__(self, name):
+        attr = getattr(self._engine, name)
+        if callable(attr):
+            def wrapper(*args, **kwargs):
+                print(f"Calling {name} with args: {args}, kwargs: {kwargs}")
+                return attr(*args, **kwargs)
+            return wrapper
+        else:
+            return attr
 def get_mdx_engine(
     cube_config,
     sql_alchemy_uri,
@@ -159,7 +172,9 @@ def get_mdx_engine(
 ):
     sqla_engine = None
     if sql_alchemy_uri:
-        sqla_engine = create_engine(sql_alchemy_uri)
+        
+
+        sqla_engine = SqlAlchemyEngineWrapper(create_engine(sql_alchemy_uri, connect_args={"password": "admin"}))
 
     if direct_table_or_file:
         executor = MdxEngineLite(
@@ -182,7 +197,7 @@ def get_mdx_engine(
     return executor
 
 
-def get_spyne_app(discover_request_hanlder, execute_request_hanlder):
+def get_spyne_app(discover_request_handler, execute_request_handler):
     """
     :return: spyne  Application
     """
@@ -192,8 +207,8 @@ def get_spyne_app(discover_request_hanlder, execute_request_hanlder):
         in_protocol=XmlaSoap11(validator="soft"),
         out_protocol=XmlaSoap11(validator="soft"),
         config={
-            "discover_request_hanlder": discover_request_hanlder,
-            "execute_request_hanlder": execute_request_hanlder,
+            "discover_request_handler": discover_request_handler,
+            "execute_request_handler": execute_request_handler,
         },
     )
 
@@ -203,9 +218,9 @@ def get_wsgi_application(mdx_engine):
     :param mdx_engine: MdxEngine instance
     :return: Wsgi Application
     """
-    discover_request_hanlder = XmlaDiscoverReqHandler(mdx_engine)
-    execute_request_hanlder = XmlaExecuteReqHandler(mdx_engine)
-    application = get_spyne_app(discover_request_hanlder, execute_request_hanlder)
+    discover_request_handler = XmlaDiscoverReqHandler(mdx_engine)
+    execute_request_handler = XmlaExecuteReqHandler(mdx_engine)
+    application = get_spyne_app(discover_request_handler, execute_request_handler)
 
     # validator='soft' or nothing, this is important because spyne doesn't
     # support encodingStyle until now !!!!
@@ -229,7 +244,7 @@ def get_wsgi_application(mdx_engine):
     help="Log file path. DEFAUL : " + logs_file,
 )
 @click.option(
-    "--sql_alchemy_uri",
+    "--sql_alchemy_uri",    
     "-sa",
     default=None,
     help="SQL Alchemy URI , **DON'T PUT THE DATABASE NAME** ",
@@ -337,7 +352,7 @@ def runserver(
         logging.basicConfig(level=logging.INFO, filename=log_file_path)
     else:
         logging.basicConfig(level=logging.INFO)
-    logging.getLogger("spyne.protocol.xml").setLevel(logging.DEBUG)
+    # logging.getLogger("spyne.protocol.xml").setLevel(logging.DEBUG)
     logging.info("listening to http://127.0.0.1:8000/xmla")
     logging.info("wsdl is at: http://localhost:8000/xmla?wsdl")
     server = make_server(host, port, wsgi_application)

@@ -1,6 +1,6 @@
 from timeit import Timer
 
-from .cube_generator import CUBE_NAME
+from cube_generator import CUBE_NAME
 
 
 class MicBench:

@@ -82,7 +82,7 @@ def executor(request):
         if not sqlalchemy_uri:
             sqlalchemy_uri = "sqlite://"
     db_test = urlparse(sqlalchemy_uri).path.replace("/", "")
-    engine = sqlalchemy.create_engine(sqlalchemy_uri)
+    engine = sqlalchemy.create_engine(sqlalchemy_uri, connect_args={"password": "admin"})
     create_insert(engine, custom)
     mdx_engine = MdxEngine(sqla_engine=engine, source_type="db", cube_config=config)
     mdx_engine.load_cube(

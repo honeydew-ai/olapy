@@ -41,7 +41,7 @@ def olapy_vs_mondrian(file, mbench, conn):
         )
 
         t = PrettyTable(["Query", "mondrian", "olapy"])
-        p2 = xmla.XMLAProvider()
+        p2 = xmla.XmlaProviderService()
         c2 = p2.connect(location="http://localhost:8080/xmondrian/xmla")
 
         cmd = """SELECT
@@ -141,7 +141,7 @@ def olapy_vs_iccube(file, mbench, conn):
         file.write("******************************************\n\n")
 
         t = PrettyTable(["Query", "olapy", "icCube"])
-        p2 = xmla.XMLAProvider()
+        p2 = xmla.XmlaProviderService()
         c2 = p2.connect(
             location="http://localhost:8282/icCube/xmla",
             username="demo",
@@ -480,7 +480,7 @@ def main():
     wsgi_application = get_wsgi_application(mdx_engine)
     server = WSGIServer(application=wsgi_application, host=HOST, port=PORT)
     server.start()
-    provider = xmla.XMLAProvider()
+    provider = xmla.XmlaProviderService()
     conn = provider.connect(location=server.url)
     olapy_query_execution_bench(file, mbench, conn, mdx_engine)
     olapy_vs_mondrian(file, mbench, conn)
